@@ -12,15 +12,15 @@
 <body>
     <div class="login-container">
         <h2>Book The Parking Spot</h2>
-        <form method="POST" action="/login">
+        <form method="POST" action='/book_spot/{{user_id}}/{{lot_id}}/{{spot_id}}'>
             <label for="spot_id">Spot_ID</label>
-            <input type="text" id="spot_id" name="spot_id" required>
+            <input type="text" id="spot_id" name="spot_id" value="{{spot_id}}" required>
 
             <label for="lot_id">Lot_ID</label>
-            <input type="text" id="lot_id" name="lot_id" required>
+            <input type="text" id="lot_id" name="lot_id" value="{{lot_id}}" required>
 
             <label for="user_id">User_ID</label>
-            <input type="text" id="user_id" name="user_id" required>
+            <input type="text" id="user_id" name="user_id" value="{{user_id}}" required>
 
             <label for="vehi_no">Vehicle Number</label>
             <input type="text" id="vehi_no" name="vehi_no" required>
@@ -28,7 +28,7 @@
             
             <div class="d-flex gap-2">
                 <button type="submit">Reserve</button>
-                <button type="submit">Cancel</button>
+                <a href ="/user_dashboard/{{user_id}}" type="button" class="btn btn-primary">Cancel</a>
             </div>
 
         </form>

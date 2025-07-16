@@ -12,7 +12,7 @@
 <body>
     <div class="login-container">
         <h2>New parking Lot</h2>
-        <form method="POST"> 
+        <form method="POST" action="/add_parking_lot"> 
 <!--here you have to change the action to any thing or otherwise to delete it -->
             <label for="location">Prime Location Name</label>
             <input type="text" id="location" name="location" required>
@@ -33,7 +33,7 @@
 
             <div class="d-flex gap-2">
                 <button type="submit">Add</button>
-                <button type="submit">Cancel</button>
+                <a href ="/admin_dashboard" type="button" class="btn btn-primary">Cancel</a>
             </div>    
 
         </form>

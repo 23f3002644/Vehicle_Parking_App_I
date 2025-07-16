@@ -12,28 +12,28 @@
 <body>
     <div class="login-container">
         <h2>Release The Parking Spot</h2>
-        <form method="POST" action="/login">
+        <form method="POST" action='/release/{{reserve1.user_id}}/{{reserve1.lot_id}}/{{reserve1.spot_id}}'>
             <label for="spot_id">Spot_ID</label>
-            <input type="text" id="spot_id" name="spot_id" required>
+            <input type="text" id="spot_id" name="spot_id" value="{{reserve1.spot_id}}" required>
 
             <label for="vehi_no">Vehicle Number</label>
-            <input type="text" id="vehi_no" name="vehi_no" required>
+            <input type="text" id="vehi_no" name="vehi_no" value="{{reserve1.vehicle_no}}" required>
 
             <label for="park_time">Parking Time</label>
-            <input type="time" id="park_time" name="park_time" required style="width: 295px;">
+            <input type="text" id="park_time" name="park_time" value="{{ reserve1.start_time.strftime('%A, %B %d, %Y %I:%M %p') }}" required style="width: 295px;">
 
             <label for="rls_time">Releasing Time</label>
-            <input type="time" id="rls_time" name="rls_time" required style="width: 295px;">
+            <input type="text" id="rls_time" name="rls_time" value="{{ end_time.strftime('%A, %B %d, %Y %I:%M %p') }}" required style="width: 295px;">
 
             <label for="t_cost">Total Cost</label>
-            <input type="text" id="t_cost" name="t_cost" required>
+            <input type="text" id="t_cost" name="t_cost" value="{{cost}}" required>
 
            
 
             
             <div class="d-flex gap-2">
-                <button type="submit">Release</button>
-                <button type="submit">Cancel</button>
+                <button type="submit" >Release</button>
+                <a href ="/user_dashboard/{{user_id}}" type="button" class="btn btn-primary">Cancel</a>
             </div>
 
         </form>

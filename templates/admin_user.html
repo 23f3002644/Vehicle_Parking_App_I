@@ -14,15 +14,15 @@
 
             <nav class="navbar navbar-expand-lg bg-primary">
                 <div class="container-fluid">
-                    <h4>Welcome Admin</h4>   
+                    <h4>Welcome {{this_user.fullname}}</h4>   
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
                         <ul class="navbar-nav mx-auto mb-2 mb-lg-0 list-group list-group-horizontal text-center">
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="admin_dash.html">Home</a>
+                                <a class="nav-link active" aria-current="page" href="/admin_dashboard">Home</a>
                             </li>
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="admin_user.html">Users</a>
+                                <a class="nav-link active" aria-current="page" href="/user_details">Users</a>
                             </li> 
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="#">Search</a>
@@ -31,7 +31,7 @@
                                 <a class="nav-link active" aria-current="page" href="#">Summary</a>
                             </li>  
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="#">Logout</a>
+                                <a class="nav-link active" aria-current="page" href="/login">Logout</a>
                             </li>
                                 
                         </ul>
@@ -57,22 +57,17 @@
                                 </tr>
                             </thead>
                                 <tbody>
+
+                                    {% for user in all_users %}
                                     <tr>
-                                        <th scope="row">1</th>
-                                        <td>37028@arsd.du.ac.in</td>
-                                        <td>Aman Pandey</td>
-                                        <td>Haryana</td>
-                                        <td>232329</td>
+                                        <th scope="row">{{user.id}}</th>
+                                        <td>{{user.email}}</td>
+                                        <td>{{user.fullname}}</td>
+                                        <td>{{user.address}}</td>
+                                        <td>{{user.pincode}}</td>
                                                                                 
                                     </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>37008@arsd.du.ac.in</td>
-                                        <td>Akash kumar</td>
-                                        <td>Delhi</td>
-                                        <td>110010</td>
-
-                                    </tr>
+                                    {% endfor %}
                                     
                                     
                                 </tbody>
