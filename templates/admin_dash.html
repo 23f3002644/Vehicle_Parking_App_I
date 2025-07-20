@@ -25,18 +25,24 @@
                                 <a class="nav-link active" aria-current="page" href="/user_details">Users</a>
                             </li>
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="#">Search</a>
-                            </li>
-                            <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="#">Summary</a>
                             </li>   
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="/login">Logout</a>
                             </li>
-                                
-                        </ul>
+                            </ul>   
                         
-                        <a class="nav-link active" aria-current="page" href="#">Edit profile</a>
+                         <form class="d-flex" action="/search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                                <select class="form-select me-2" aria-label="Default select example" name="key">
+                                    <option selected>select</option>
+                                    <option value="user">User</option>
+                                    <option value="lot">Parking Lots</option>
+                                </select>
+                            <input class="btn btn-outline-success" type="submit" value="Search">
+                        </form>
+                        
+                        
 
                     </div>
                 </div>
@@ -53,22 +59,30 @@
                                 {% for lot in all_lots %}
                                 <div class="col-3">
                                     <h4> {{lot.location}}</h4>
-                                    <a href='/edit_parking_lot/{{lot.id}}' class="btn btn-info">Edit</a>
+
+                                    <!-- if the Lot is full, then there will be no edit in parking lot-->
+                                    <a href="/edit_parking_lot/{{lot.id}}" class="btn btn-info {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
+                                     aria-disabled="true" tabindex="-1" > Edit </a>
+                                    
                                     |
-                                    <a href="" class="btn btn-danger">Delete</a>
+                                    <!-- if the Lot is full, then it will deleted else No-->
+                                    <a href="/delete_lot/{{lot.id}}" class="btn btn-danger {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
+                                     aria-disabled="true" tabindex="-1" > Delete </a>
+                                    
                                     <br>
-                                    (Occupied : {{lot.available_spots}}/4)
+                                    (Occupied : {{lot.available_spots}}/{{lot.total_spots}})
                                     <hr>
                                     
                                     <br>
+                                    
                                     {% for spot in all_spots  %}
-                                    {% if spot.lot_id == lot.id %}
-                                    {% if spot.status =="Available" %}
-                                    <a href="/delete_spot/{{spot.id}}" class="btn btn-primary">A</a>
-                                    {% else %}  
-                                    <a href="/delete_spot/{{spot.id}}" class="btn btn-success">O</a>
-                                    {% endif %}
-                                    {% endif %}
+                                        {% if spot.lot_id == lot.id %}
+                                            {% if spot.status =="Available" %}
+                                            <a href="/delete_spot/{{spot.id}}" class="btn btn-primary">A</a>
+                                            {% else %}  
+                                            <a href="/delete_spot/{{spot.id}}" class="btn btn-success">O</a>
+                                            {% endif %}
+                                        {% endif %}
                                     {% endfor %}
 
                                 </div>

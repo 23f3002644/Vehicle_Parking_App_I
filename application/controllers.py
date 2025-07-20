@@ -12,18 +12,19 @@ def Login():
     if request.method =='POST':
         email = request.form.get('email')
         password = request.form.get('password')
-        this_user = Users.query.filter_by(email=email).first() #get the first user with this email
-
+        this_user = Users.query.filter_by(email=email).first() #get the first user with this email 
         if this_user:
             if this_user.password == password:
                 if this_user.type == 'admin':
-                    return redirect(f'/admin_dashboard/{this_user.id}')
+                    return redirect('/admin_dashboard')
                 else:
                     return redirect(f'/user_dashboard/{this_user.id}')
             else:
-                return 'Invalid password'
+                result = "Invalid password"
+                return render_template("invalid_login.html", result=result)
         else:
-            return 'User not found'    
+            result = "User not found"
+            return render_template("invalid_login.html", result=result)    
     return render_template('login.html') 
 
 
@@ -48,7 +49,7 @@ def Register():
 @app.route('/user_dashboard/<user_id>', methods=['GET'])
 def user_dashboard(user_id):
     this_user = Users.query.filter_by(id=user_id).first()
-    reserve = Reserve.query.filter_by(user_id=user_id).all()
+    reserve = Reserve.query.filter_by(user_id=user_id).order_by(Reserve.start_time.desc()).limit(3).all()
     search = request.form.get('search') if request.method == 'POST' else None
     if search:
         this_lot = Lots.query.filter(Lots.address.contains(search)).all()
@@ -83,7 +84,8 @@ def book_spot(user_id, lot_id, spot_id):
         start_time = datetime.now()
         vehicle_no = request.form.get('vehi_no')
         status = "Uncompleted"
-        new_reservation = Reserve(user_id=user_id, lot_id=lot_id, spot_id=spot_id, start_time=start_time, vehicle_no=vehicle_no, status=status)
+        location = request.form.get('location')
+        new_reservation = Reserve(user_id=user_id, lot_id=lot_id, location=location, spot_id=spot_id, start_time=start_time, vehicle_no=vehicle_no, status=status)
         db.session.add(new_reservation)
         db.session.commit()
         spot_to_update = Spots.query.filter_by(id=spot_id).first()
@@ -92,7 +94,7 @@ def book_spot(user_id, lot_id, spot_id):
         this_lot.available_spots -= 1
         db.session.commit()
         return redirect(f'/user_dashboard/{user_id}')
-    return render_template('Booking.html', user_id=user_id, lot_id=lot_id, spot_id=spot_id)
+    return render_template('Booking.html', user_id=user_id, lot_id=lot_id, spot_id=spot_id, this_lot=this_lot)
 
 
 @app.route('/release/<int:user_id>/<int:lot_id>/<spot_id>', methods=['GET','POST'])
@@ -112,13 +114,13 @@ def release_spot(user_id, lot_id, spot_id):
         this_lot.available_spots += 1
         db.session.commit()
         return redirect(f'/user_dashboard/{user_id}')
-    return render_template('release.html', reserve1=reserve1,end_time=end_time,cost=cost)
+    return render_template('release.html', reserve1=reserve1,end_time=end_time,cost=cost, this_lot=this_lot, user_id=user_id)
 
 
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     this_user = Users.query.filter_by(type="admin").first()
-    all_users = Users.query.filter_by(type="general").all()
+    all_users = Users.query.filter_by(type="user").all()
     all_lots = Lots.query.all()
     all_spots = Spots.query.all()
     all_reservations = Reserve.query.all()
@@ -127,7 +129,7 @@ def admin_dashboard():
 
 @app.route('/user_details', methods=['GET'])  
 def user_details():
-    all_users = Users.query.filter_by(type="general").all()
+    all_users = Users.query.filter_by(type="user").all()
     this_user = Users.query.filter_by(type="admin").first()
     return render_template('admin_user.html', all_users=all_users,this_user=this_user)
 
@@ -137,10 +139,19 @@ def edit_parking_lot(lot_id):
     if request.method == 'POST':
         this_lot.location = request.form.get('location')
         this_lot.price = request.form.get('price')
+        this_lot.total_spots = request.form.get('max_spot')
         this_lot.available_spots = request.form.get('max_spot')
         this_lot.address = request.form.get('address')
         this_lot.pincode = request.form.get('pincode')
         db.session.commit()
+        # Resetting the spots for the lot
+        Spots.query.filter_by(lot_id=this_lot.id).delete()  # Delete existing spots
+        db.session.commit()
+        for i in range(1,int(this_lot.total_spots) + 1):
+            spot_id = f"{this_lot.id}_{i}"
+            update_spot = Spots(id=spot_id, lot_id=this_lot.id, status="Available")
+            db.session.add(update_spot)
+            db.session.commit()
         return redirect('/admin_dashboard')
     return render_template('edit_lot.html', this_lot=this_lot)
 
@@ -152,9 +163,15 @@ def add_parking_lot():
         max_spots = request.form.get('max_spot') # Assuming max_spots is the number of available spots, here you have to change it
         address = request.form.get('address')
         pincode = request.form.get('pincode')
-        new_lot = Lots(location=location, price=price, available_spots=max_spots, address=address, pincode=pincode) #here also available_spots to max_spots 
+        new_lot = Lots(location=location, price=price, total_spots=max_spots, available_spots=max_spots, address=address, pincode=pincode) #here also available_spots to max_spots
         db.session.add(new_lot)
         db.session.commit()
+        this_lot = Lots.query.filter_by(location=location).first()
+        for i in range(1,int(max_spots) + 1):
+            spot_id = f"{this_lot.id}_{i}"
+            new_spot = Spots(id=spot_id, lot_id=new_lot.id, status="Available")
+            db.session.add(new_spot)
+            db.session.commit()
         return redirect('/admin_dashboard')
     return render_template('add_lot.html')
 
@@ -167,8 +184,28 @@ def delete_spot(spot_id):
         return redirect('/admin_dashboard')
     return render_template('delete_spot.html', this_spot=this_spot)
 
+@app.route('/delete_lot/<int:lot_id>', methods=['GET', 'POST'])
+def delete_lot(lot_id):
+    this_lot = Lots.query.filter_by(id=lot_id).first()
+    if this_lot:
+        db.session.delete(this_lot)
+        db.session.commit()
+    return redirect('/admin_dashboard')
+
+
 @app.route('/occupied_spot_detail/<spot_id>', methods=['GET'])
 def occupied_spot_detail(spot_id):
     this_spot_reserve = Reserve.query.filter_by(spot_id=spot_id, status="Uncompleted").first()
     return render_template('parking_spot_details.html', this_spot_reserve=this_spot_reserve)
 
+@app.route('/search')
+def search():
+    this_user = Users.query.filter_by(type="admin").first()
+    search = request.args.get('search')
+    key = request.args.get('key')
+    if key == "user":
+        results = Users.query.filter(Users.fullname.contains(search)).all()
+    else:
+        results = Lots.query.filter(Lots.location.contains(search)).all()
+    all_spots = Spots.query.all()    
+    return render_template('search.html', results=results, this_user=this_user, key=key, all_spots=all_spots)

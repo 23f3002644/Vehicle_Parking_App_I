@@ -26,7 +26,8 @@
                 {% if this_spot.status == "Occupied" %}
                 <a href ="/occupied_spot_detail/{{this_spot.id}}" type="button" class="btn btn-info">View Occupation</a>
                 {% else %}
-                <button type="submit" class="btn btn-danger" >Delete</button> <!--here button is not coming in danger format, Look again -->
+                <button type="submit"  class="btn btn-danger" >Delete</button> 
+                
                 {% endif %}
                 <a href ="/admin_dashboard" type="button" class="btn btn-primary">Close</a>
             </div>    

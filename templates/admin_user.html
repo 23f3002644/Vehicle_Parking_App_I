@@ -24,9 +24,7 @@
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="/user_details">Users</a>
                             </li> 
-                            <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="#">Search</a>
-                            </li>
+                            
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="#">Summary</a>
                             </li>  
@@ -35,8 +33,16 @@
                             </li>
                                 
                         </ul>
+                        <form class="d-flex" action="/search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                                <select class="form-select me-2" aria-label="Default select example" name="key">
+                                    <option selected>select</option>
+                                    <option value="user">User</option>
+                                    <option value="lot">Parking Lots</option>
+                                </select>
+                            <input class="btn btn-outline-success" type="submit" value="Search">
+                        </form>
                         
-                        <a class="nav-link active" aria-current="page" href="#">Edit profile</a>
 
                     </div>
                 </div>

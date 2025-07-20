@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin_Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+</head>
+
+<body>
+    <div id ="main">
+        <div id ="canvas"> 
+
+            <nav class="navbar navbar-expand-lg bg-primary">
+                <div class="container-fluid">
+                    <h4>Welcome {{this_user.fullname}}</h4>   
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 list-group list-group-horizontal text-center">
+                            <li class="nav-item list-group-item  list-group-item-success">
+                                <a class="nav-link active" aria-current="page" href="/admin_dashboard">Home</a>
+                            </li>
+                            <li class="nav-item list-group-item  list-group-item-success">
+                                <a class="nav-link active" aria-current="page" href="/user_details">Users</a>
+                            </li>
+                            
+                            <li class="nav-item list-group-item  list-group-item-success">
+                                <a class="nav-link active" aria-current="page" href="#">Summary</a>
+                            </li>   
+                            <li class="nav-item list-group-item  list-group-item-success">
+                                <a class="nav-link active" aria-current="page" href="/login">Logout</a>
+                            </li>      
+                        </ul>
+                        
+                        <form class="d-flex" action="/search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                                <select class="form-select me-2" aria-label="Default select example" name="key">
+                                    <option selected>select</option>
+                                    <option value="user">User</option>
+                                    <option value="lot">Parking Lots</option>
+                                </select>
+                            <input class="btn btn-outline-success" type="submit" value="Search">
+                        </form>
+                        
+                    </div>
+                </div>
+            </nav>
+
+            {% if key == "lot" %}
+            <div id ="content">
+                    <h3 class="heading">Parking Lots</h3>
+                    <div class="container">
+                        <div class="row g-2">
+
+                            {% for lot in results %}
+                            <div class="col-3">
+                                <h4> {{lot.location}}</h4>
+
+                                <!-- if the Lot is full, then there will be no edit in parking lot-->
+                                <a href="/edit_parking_lot/{{lot.id}}" class="btn btn-info {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
+                                    aria-disabled="true" tabindex="-1" > Edit </a>
+                                
+                                |
+                                <!-- if the Lot is full, then it will deleted else No-->
+                                <a href="/delete_lot/{{lot.id}}" class="btn btn-danger {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
+                                    aria-disabled="true" tabindex="-1" > Delete </a>
+                                
+                                <br>
+                                (Occupied : {{lot.available_spots}}/{{lot.total_spots}})
+                                <hr>
+                                
+                                <br>
+                                
+                                {% for spot in all_spots  %}
+                                    {% if spot.lot_id == lot.id %}
+                                        {% if spot.status =="Available" %}
+                                        <a href="/delete_spot/{{spot.id}}" class="btn btn-primary">A</a>
+                                        {% else %}  
+                                        <a href="/delete_spot/{{spot.id}}" class="btn btn-success">O</a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>                        
+            </div> 
+
+            {% else %}
+            <div id ="content">
+                <h3 class="heading">User Details</h3>
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Email ID</th>
+                            <th scope="col">Full Name</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Pincode</th>
+                        </tr>
+                    </thead>
+                        <tbody>
+                            {% for user in results %}
+                            <tr>
+                                <th scope="row">{{user.id}}</th>
+                                <td>{{user.email}}</td>
+                                <td>{{user.fullname}}</td>
+                                <td>{{user.address}}</td>
+                                <td>{{user.pincode}}</td>                                           
+                            </tr>  
+                            {% endfor %} 
+                        </tbody>
+                </table>
+            </div> 
+            
+            {% endif %}
+            
+        </div>
+    </div>
+    
+</body>
+</html>
