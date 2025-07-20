@@ -3,6 +3,7 @@ from datetime import datetime
 #if we use application.database , it will search another directory named application
 # and will not find the file, hence it will throw an error
 
+
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(50), unique=True, nullable=False)

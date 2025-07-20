@@ -61,9 +61,9 @@ body {
     margin:3px;
     text-align: center;
     padding-left: 3px;
-    margin: 30px;
+    margin: 10px;
     border: 2px solid #1976d2;   /* For Change color */
-    padding: 16px;
+    padding: 10px;
     border-radius: 6px;
     margin-bottom: 10px;
     background: #dee5ec;
@@ -81,7 +81,6 @@ body {
     border-radius: 8px;           /* For  rounded corners */
     padding: 12px;                /* For space inside the border */
     margin-bottom: 16px;
-    text-align: center;
-    
-              
+    text-align: center;             
 }
+

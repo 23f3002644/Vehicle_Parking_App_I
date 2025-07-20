@@ -25,7 +25,7 @@
                                 <a class="nav-link active" aria-current="page" href="/user_details">Users</a>
                             </li>
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="/admin_summary">Summary</a>
+                                <a class="nav-link active" aria-current="page" href="#">Summary</a>
                             </li>   
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="/login">Logout</a>
@@ -48,54 +48,34 @@
                 </div>
             </nav>
 
-
-
-            <div class ="top-section">
-                <div id ="content">
-                        <h3 class="heading">Parking Lots</h3>
-                        <div class="container">
-                            <div class="row g-2">
-
-                                {% for lot in all_lots %}
-                                <div class="col-3">
-                                    <h4> {{lot.location}}</h4>
-
-                                    <!-- if the Lot is full, then there will be no edit in parking lot-->
-                                    <a href="/edit_parking_lot/{{lot.id}}" class="btn btn-info {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
-                                     aria-disabled="true" tabindex="-1" > Edit </a>
-                                    
-                                    |
-                                    <!-- if the Lot is full, then it will deleted else No-->
-                                    <a href="/delete_lot/{{lot.id}}" class="btn btn-danger {% if lot.available_spots != lot.total_spots %} disabled {% endif %}"
-                                     aria-disabled="true" tabindex="-1" > Delete </a>
-                                    
-                                    <br>
-                                    (Occupied : {{lot.available_spots}}/{{lot.total_spots}})
-                                    <hr>
-                                    
-                                    <br>
-                                    
-                                    {% for spot in all_spots  %}
-                                        {% if spot.lot_id == lot.id %}
-                                            {% if spot.status =="Available" %}
-                                            <a href="/delete_spot/{{spot.id}}" class="btn btn-primary">A</a>
-                                            {% else %}  
-                                            <a href="/delete_spot/{{spot.id}}" class="btn btn-success">O</a>
-                                            {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-
-                                </div>
-                                {% endfor %}
-
+            <div id ="content">
+                    <h3 class="heading">Summary</h3>
+                    <div class="container">
+                        <div class="d-flex justify-content-around text-center" style="margin-top: 40px;">
+                            <div class="card bg-info p-3 ">
+                                <h3>Total Users</h3>
+                                <h5>{{total_user}}</h5>
                             </div>
-                        </div>                        
-                </div>   
-            </div>
-            <div class="bottom-section text-center">
-                <a class="btn btn-primary mb-4" href="/add_parking_lot">Add Lot</a>
-            </div>
-            
+                            <div class="card bg-warning p-3 ">
+                                <h3>Total Lots</h3>
+                                <h5>{{total_lots}}</h5>
+                            </div>
+                            <div class="card bg-primary p-3 ">
+                                <h3>Total Spots</h3>
+                                <h5>{{total_spot}}</h5>
+                            </div>
+                            <div class="card bg-primary p-3 ">
+                                <h3>Available Spots</h3>
+                                <h5>{{total_available_spots}}</h5>
+                            </div>
+                        </div> 
+                    </div>
+                <div class="my-2">
+                    <h3 class="mx-2"> Total Spots in each Lots</h3>
+                    <img src="/static/bar.png" alt="Pie chart">
+                </div>                        
+            </div>   
+               
         </div>
     </div>
     

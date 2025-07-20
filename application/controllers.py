@@ -5,6 +5,10 @@ from flask import current_app as app #it refer toapp object created
 from .models import * #both is in same folder 
 from datetime import datetime
 
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("Agg")
+
 
 @app.route('/')
 @app.route('/login', methods= ['GET', 'POST'])
@@ -46,13 +50,13 @@ def Register():
             return redirect('/login')
     return render_template('register.html')
 
-@app.route('/user_dashboard/<user_id>', methods=['GET'])
+@app.route('/user_dashboard/<user_id>', methods=['GET','POST'])
 def user_dashboard(user_id):
     this_user = Users.query.filter_by(id=user_id).first()
     reserve = Reserve.query.filter_by(user_id=user_id).order_by(Reserve.start_time.desc()).limit(3).all()
     search = request.form.get('search') if request.method == 'POST' else None
     if search:
-        this_lot = Lots.query.filter(Lots.address.contains(search)).all()
+        this_lot = Lots.query.filter(Lots.location.contains(search)).all()
     else:
         this_lot = Lots.query.all()
     
@@ -101,12 +105,11 @@ def book_spot(user_id, lot_id, spot_id):
 def release_spot(user_id, lot_id, spot_id):
     this_lot = Lots.query.filter_by(id=lot_id).first() 
     reserve1 = Reserve.query.filter_by(user_id=user_id, lot_id=lot_id, spot_id=spot_id, status="Uncompleted").first()
-    end_time = datetime.now()
-    cost = (end_time - reserve1.start_time).total_seconds() / 3600 * this_lot.price
     if request.method == 'POST':
         reserve1.status = "Completed" # Completed or Uncompleted
-        reserve1.end_time = end_time
-        reserve1.cost = cost
+        reserve1.end_time = datetime.now()
+        reserve1.total_time = (reserve1.end_time - reserve1.start_time).total_seconds()/3600  # in hours
+        reserve1.cost = (reserve1.end_time - reserve1.start_time).total_seconds() / 3600 * this_lot.price
         db.session.commit()
         spot_to_update = Spots.query.filter_by(id=spot_id).first()
         spot_to_update.status = "Available"  #   Available and Occupied
@@ -114,7 +117,7 @@ def release_spot(user_id, lot_id, spot_id):
         this_lot.available_spots += 1
         db.session.commit()
         return redirect(f'/user_dashboard/{user_id}')
-    return render_template('release.html', reserve1=reserve1,end_time=end_time,cost=cost, this_lot=this_lot, user_id=user_id)
+    return render_template('release.html', reserve1=reserve1, this_lot=this_lot, user_id=user_id)
 
 
 @app.route('/admin_dashboard', methods=['GET'])
@@ -181,6 +184,11 @@ def delete_spot(spot_id):
     if request.method == 'POST':
         db.session.delete(this_spot)
         db.session.commit()
+        lot_id = this_spot.lot_id
+        this_lot = Lots.query.filter_by(id=lot_id).first()
+        this_lot.available_spots -= 1
+        this_lot.total_spots -= 1
+        db.session.commit()
         return redirect('/admin_dashboard')
     return render_template('delete_spot.html', this_spot=this_spot)
 
@@ -209,3 +217,31 @@ def search():
         results = Lots.query.filter(Lots.location.contains(search)).all()
     all_spots = Spots.query.all()    
     return render_template('search.html', results=results, this_user=this_user, key=key, all_spots=all_spots)
+
+@app.route('/admin_summary', methods=['GET'])
+def admin_summary():
+    this_user = Users.query.filter_by(type="admin").first()
+    total_user = len(Users.query.filter_by(type="user").all())
+    total_lots = len(Lots.query.all())
+    all_lots = Lots.query.all()
+    all_spots = Spots.query.all()
+    total_spot = len(all_spots)
+    total_available_spots = len([spot for spot in all_spots if spot.status == "Available"])
+
+    labels = [lot.location for lot in all_lots]
+    sizes = [len(Spots.query.filter_by(lot_id=lot.id).all()) for lot in all_lots]
+    plt.bar(labels,sizes)
+    plt.xlabel("Lot Location")
+    plt.ylabel("No of Spots")
+    plt.title("No. Spots in Each Lot")
+    plt.savefig("static/bar.png")
+    plt.clf()
+
+    return render_template('summ_admin.html', this_user=this_user, total_user=total_user, total_lots=total_lots, 
+                           total_spot=total_spot, total_available_spots=total_available_spots)
+
+@app.route('/user_summary/<int:user_id>', methods=['GET'])
+def user_summary(user_id):
+    this_user = Users.query.get(user_id)
+    reserve = Reserve.query.filter_by(user_id=user_id).all()
+    return render_template('summ_user.html', this_user=this_user, reserve=reserve)
