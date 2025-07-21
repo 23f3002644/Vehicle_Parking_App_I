@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 
 
 @app.route('/')
-@app.route('/login', methods= ['GET', 'POST'])
+@app.route('/login', methods= ['GET', 'POST'])        #Uncompleted
 def Login():
     if request.method =='POST':
         email = request.form.get('email')
@@ -86,8 +86,8 @@ def book_spot(user_id, lot_id, spot_id):
     this_lot = Lots.query.filter_by(id=lot_id).first()
     if request.method == 'POST':
         start_time = datetime.now()
-        vehicle_no = request.form.get('vehi_no')
-        status = "Uncompleted"
+        vehicle_no = request.form.get('vehi_no') 
+        status = "occupied"
         location = request.form.get('location')
         new_reservation = Reserve(user_id=user_id, lot_id=lot_id, location=location, spot_id=spot_id, start_time=start_time, vehicle_no=vehicle_no, status=status)
         db.session.add(new_reservation)
@@ -104,16 +104,16 @@ def book_spot(user_id, lot_id, spot_id):
 @app.route('/release/<int:user_id>/<int:lot_id>/<spot_id>', methods=['GET','POST'])
 def release_spot(user_id, lot_id, spot_id):
     this_lot = Lots.query.filter_by(id=lot_id).first() 
-    reserve1 = Reserve.query.filter_by(user_id=user_id, lot_id=lot_id, spot_id=spot_id, status="Uncompleted").first()
+    reserve1 = Reserve.query.filter_by(user_id=user_id, lot_id=lot_id, spot_id=spot_id, status="occupied").first()
     if request.method == 'POST':
-        reserve1.status = "Completed" # Completed or Uncompleted
+        reserve1.status = "released" # released or occupied
         reserve1.end_time = datetime.now()
         reserve1.total_time = (reserve1.end_time - reserve1.start_time).total_seconds()/3600  # in hours
         reserve1.cost = (reserve1.end_time - reserve1.start_time).total_seconds() / 3600 * this_lot.price
         db.session.commit()
         spot_to_update = Spots.query.filter_by(id=spot_id).first()
         spot_to_update.status = "Available"  #   Available and Occupied
-        db.session.commit()
+        db.session.commit()     #Uncompleted
         this_lot.available_spots += 1
         db.session.commit()
         return redirect(f'/user_dashboard/{user_id}')
@@ -203,8 +203,8 @@ def delete_lot(lot_id):
 
 @app.route('/occupied_spot_detail/<spot_id>', methods=['GET'])
 def occupied_spot_detail(spot_id):
-    this_spot_reserve = Reserve.query.filter_by(spot_id=spot_id, status="Uncompleted").first()
-    return render_template('parking_spot_details.html', this_spot_reserve=this_spot_reserve)
+    this_spot_reserve = Reserve.query.filter_by(spot_id=spot_id, status="occupied").first()
+    return render_template('parking_spot_details.html', this_spot_reserve=this_spot_reserve) #Completed
 
 @app.route('/search')
 def search():
@@ -212,11 +212,13 @@ def search():
     search = request.args.get('search')
     key = request.args.get('key')
     if key == "user":
-        results = Users.query.filter(Users.fullname.contains(search)).all()
+        results = Users.query.filter(Users.fullname.contains(search)).first()
+        user_reserve = Reserve.query.filter_by(user_id=results.id).order_by(Reserve.id.desc()).all() 
     else:
         results = Lots.query.filter(Lots.location.contains(search)).all()
-    all_spots = Spots.query.all()    
-    return render_template('search.html', results=results, this_user=this_user, key=key, all_spots=all_spots)
+    all_spots = Spots.query.all() 
+
+    return render_template('search.html', results=results, this_user=this_user, key=key, all_spots=all_spots, user_reserve=user_reserve if key == "user" else None)
 
 @app.route('/admin_summary', methods=['GET'])
 def admin_summary():
@@ -243,5 +245,12 @@ def admin_summary():
 @app.route('/user_summary/<int:user_id>', methods=['GET'])
 def user_summary(user_id):
     this_user = Users.query.get(user_id)
-    reserve = Reserve.query.filter_by(user_id=user_id).all()
+    reserve = Reserve.query.filter_by(user_id=user_id, status="released").order_by(Reserve.id.desc()).all()
     return render_template('summ_user.html', this_user=this_user, reserve=reserve)
+
+@app.route('/all_reservations', methods=['GET'])
+def all_reservations():
+    this_user = Users.query.filter_by(type="admin").first()
+    all_reserve = Reserve.query.filter_by(status = "released").order_by(Reserve.id.desc()).all()
+   
+    return render_template('all_reserve.html', this_user=this_user, all_reserve=all_reserve)

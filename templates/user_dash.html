@@ -45,7 +45,7 @@
                         <table class="table table-striped table-bordered" >
                             <thead>
                                 <tr>
-                                    <th scope="col">ID</th>
+                                    
                                     <th scope="col">Location</th>
                                     <th scope="col">Vehicle_no</th>
                                     <th scope="col">Parking Time</th>
@@ -57,11 +57,11 @@
                                 <tbody>
                                     {% for his in reserve %}
                                     <tr>
-                                        <th scope="row">{{his.id}}</th>
+                                        
                                         <td>{{his.location}}</td>
                                         <td>{{his.vehicle_no}}</td>
                                         <td>{{his.start_time.strftime('%A, %B %d, %Y %I:%M %p') }}</td>
-                                        {% if his.status == "Uncompleted" %}
+                                        {% if his.status == "occupied" %}
                                         <td>--</td>
                                         <td> <a href ='/release/{{his.user_id}}/{{his.lot_id}}/{{his.spot_id}}' type="button" class="btn btn-info">Release</a></td>
                                         {% else %}
@@ -89,7 +89,7 @@
             <div class ="bottom-section">
                 <div id="content2" >
 
-                    <h3 class="heading">Parking Lot</h3>
+                    <h3 class="heading">Available Parking Lot</h3>
 
                     <!--Search optionality-->
 

@@ -40,6 +40,6 @@ class Reserve(db.Model):
     end_time = db.Column(db.DateTime)
     total_time = db.Column(db.Float)  # in hours
     location = db.Column(db.String(200), nullable=False)
-    status = db.Column(db.String, default="Unoccupied") # Unoccupied or Occupied
+    status = db.Column(db.String, default="released") # released or occupied
     cost = db.Column(db.Float)
     vehicle_no = db.Column(db.String(20), nullable=False)

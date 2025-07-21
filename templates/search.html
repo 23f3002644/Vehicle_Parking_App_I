@@ -26,8 +26,11 @@
                             </li>
                             
                             <li class="nav-item list-group-item  list-group-item-success">
-                                <a class="nav-link active" aria-current="page" href="#">Summary</a>
-                            </li>   
+                                <a class="nav-link active" aria-current="page" href="/admin_summary">Summary</a>
+                            </li> 
+                            <li class="nav-item list-group-item  list-group-item-success">
+                                <a class="nav-link active" aria-current="page" href="/all_reservations">All Record</a>
+                            </li>
                             <li class="nav-item list-group-item  list-group-item-success">
                                 <a class="nav-link active" aria-current="page" href="/login">Logout</a>
                             </li>      
@@ -46,6 +49,7 @@
                     </div>
                 </div>
             </nav>
+            {% if results %}
 
             {% if key == "lot" %}
             <div id ="content">
@@ -90,6 +94,7 @@
             </div> 
 
             {% else %}
+            <div class ="top-section">
             <div id ="content">
                 <h3 class="heading">User Details</h3>
                 <table class="table table-striped table-bordered">
@@ -103,18 +108,71 @@
                         </tr>
                     </thead>
                         <tbody>
-                            {% for user in results %}
+                            
                             <tr>
-                                <th scope="row">{{user.id}}</th>
-                                <td>{{user.email}}</td>
-                                <td>{{user.fullname}}</td>
-                                <td>{{user.address}}</td>
-                                <td>{{user.pincode}}</td>                                           
+                                <th scope="row">{{results.id}}</th>
+                                <td>{{results.email}}</td>
+                                <td>{{results.fullname}}</td>
+                                <td>{{results.address}}</td>
+                                <td>{{results.pincode}}</td>                                           
                             </tr>  
-                            {% endfor %} 
+                            
                         </tbody>
                 </table>
+            </div>
             </div> 
+
+            <div class ="bottom-section">
+                <div id ="content" class="overflow-auto">
+                        <h3 class="heading">User Parking History</h3>
+                        <div id="table1" class="border" >
+                        <table class="table table-striped table-bordered" >
+                            <thead>
+                                <tr>
+                                    
+                                    <th scope="col">Location</th>
+                                    <th scope="col">Vehicle_no</th>
+                                    <th scope="col">Spot Id </th>
+                                    <th scope="col">Parking Time</th>
+                                    <th scope="col">Releasing Time</th>
+                                    <th scope="col">Total Time</th>
+                                    <th scope="col">Total cost</th>
+                                    
+                                </tr>
+                            </thead>
+                                <tbody>
+                                    {% for his in user_reserve %}
+                                    <tr>
+                                        
+                                        <td>{{his.location}}</td>
+                                        <td>{{his.vehicle_no}}</td>
+                                        <td>{{his.spot_id}}</td>
+                                        <td>{{his.start_time.strftime('%A, %B %d, %Y %I:%M %p') }}</td>
+                                        {% if his.status == "released" %}
+                                        <td>{{his.end_time.strftime('%A, %B %d, %Y %I:%M %p') }}</td>
+                                        <td>{{his.total_time | round(2) }} Hrs</td>
+                                        <td>{{his.cost | round(1)}} Rupees</td>
+                                        {% else %}  
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        {% endif %}
+                                        
+                                    </tr>
+
+                                    {% endfor %}
+                                    
+                                   
+                                    
+                                </tbody>
+                        </table>
+                        </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% else%}
+            <h3 class="text-center my-2 "> Wrong Matching , Please see it again </h3>
             
             {% endif %}
             

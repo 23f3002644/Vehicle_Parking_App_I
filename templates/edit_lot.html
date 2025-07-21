@@ -13,7 +13,7 @@
     <div class="login-container">
         <h2>Edit Parking Lot</h2>
         <form method="POST" action="/edit_parking_lot/{{this_lot.id}}"> 
-<!--here you have to change the action to any thing or otherwise to delete it -->
+
             <label for="location">Prime Location Name</label>
             <input type="text" id="location" name="location" placeholder="{{this_lot.location}}" required>
 
@@ -29,7 +29,7 @@
             <label for="max_spot">Total Spots</label>
             <input type="number" id="max_spot" name="max_spot" placeholder="{{this_lot.total_spots}}" required>
 
-            
+         
 
             <div class="d-flex gap-2">
                 <button type="submit">Update</button>

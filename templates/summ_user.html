@@ -60,10 +60,11 @@
                                     <td>{{his.vehicle_no}}</td>
                                     <td>{{his.start_time.strftime('%A, %B %d, %Y %I:%M %p') }}</td>
                                     <td>{{his.end_time.strftime('%A, %B %d, %Y %I:%M %p') }}</td>
-                                    <td>{{his.total_time }} Hrs</td>
-                                    <td>{{his.cost}}</td>  
+                                    <td>{{his.total_time | round(2) }} Hrs</td>
+                                    <td>{{his.cost | round(1)}} Rupees</td>  
+                                    
                                 </tr>
-
+ 
                                 {% endfor %}
                                   
                             </tbody>
