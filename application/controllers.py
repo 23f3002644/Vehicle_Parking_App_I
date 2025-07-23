@@ -1,6 +1,6 @@
 from flask import Flask,request,render_template,redirect
 
-from flask import current_app as app #it refer toapp object created
+from flask import current_app as app #it refer to app object created
 
 from .models import * #both is in same folder 
 from datetime import datetime
@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 
 
 @app.route('/')
-@app.route('/login', methods= ['GET', 'POST'])        #Uncompleted
+@app.route('/login', methods= ['GET', 'POST'])        
 def Login():
     if request.method =='POST':
         email = request.form.get('email')
@@ -113,7 +113,7 @@ def release_spot(user_id, lot_id, spot_id):
         db.session.commit()
         spot_to_update = Spots.query.filter_by(id=spot_id).first()
         spot_to_update.status = "Available"  #   Available and Occupied
-        db.session.commit()     #Uncompleted
+        db.session.commit()     
         this_lot.available_spots += 1
         db.session.commit()
         return redirect(f'/user_dashboard/{user_id}')
@@ -163,10 +163,10 @@ def add_parking_lot():
     if request.method == 'POST':
         location = request.form.get('location')
         price = request.form.get('price')
-        max_spots = request.form.get('max_spot') # Assuming max_spots is the number of available spots, here you have to change it
+        max_spots = request.form.get('max_spot') # max_spots is the total number of spots
         address = request.form.get('address')
         pincode = request.form.get('pincode')
-        new_lot = Lots(location=location, price=price, total_spots=max_spots, available_spots=max_spots, address=address, pincode=pincode) #here also available_spots to max_spots
+        new_lot = Lots(location=location, price=price, total_spots=max_spots, available_spots=max_spots, address=address, pincode=pincode) 
         db.session.add(new_lot)
         db.session.commit()
         this_lot = Lots.query.filter_by(location=location).first()
@@ -204,7 +204,7 @@ def delete_lot(lot_id):
 @app.route('/occupied_spot_detail/<spot_id>', methods=['GET'])
 def occupied_spot_detail(spot_id):
     this_spot_reserve = Reserve.query.filter_by(spot_id=spot_id, status="occupied").first()
-    return render_template('parking_spot_details.html', this_spot_reserve=this_spot_reserve) #Completed
+    return render_template('parking_spot_details.html', this_spot_reserve=this_spot_reserve) 
 
 @app.route('/search')
 def search():
@@ -213,11 +213,13 @@ def search():
     key = request.args.get('key')
     if key == "user":
         results = Users.query.filter(Users.fullname.contains(search)).first()
-        user_reserve = Reserve.query.filter_by(user_id=results.id).order_by(Reserve.id.desc()).all() 
+        if results:
+            user_reserve = Reserve.query.filter_by(user_id=results.id).order_by(Reserve.id.desc()).all()
+        else:
+            user_reserve = None     
     else:
         results = Lots.query.filter(Lots.location.contains(search)).all()
-    all_spots = Spots.query.all() 
-
+    all_spots = Spots.query.all()
     return render_template('search.html', results=results, this_user=this_user, key=key, all_spots=all_spots, user_reserve=user_reserve if key == "user" else None)
 
 @app.route('/admin_summary', methods=['GET'])
